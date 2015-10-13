@@ -573,6 +573,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
+<<<<<<< HEAD
     [self unhighlightAllTokens];
     NSString *newString = [textField.text stringByReplacingCharactersInRange:range withString:string];
     for (NSString *delimiter in self.delimiters) {
@@ -586,6 +587,15 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
                 }
             }
         }
+=======
+    BOOL isPressedBackspaceAfterSingleSpaceSymbol = [textField.text isEqualToString:@""] && range.location == 0 && range.length == 0 && string.length == 0;
+    if (isPressedBackspaceAfterSingleSpaceSymbol) {
+        if ([self respondsToSelector:@selector(textFieldDidEnterBackspace:)]) {
+            [self textFieldDidEnterBackspace:self.inputTextField];
+        }
+    } else {
+        [self unhighlightAllTokens];
+>>>>>>> 85ec951fab4bdcde28cee3eccf135d9cf4963793
     }
     return YES;
 }
