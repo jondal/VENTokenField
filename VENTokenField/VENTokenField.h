@@ -81,7 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (copy, nonatomic, nullable) NSString *placeholderText;
 @property (copy, nonatomic, nullable) NSString *inputTextFieldAccessibilityLabel;
 
-- (void)setColorScheme:(UIColor *)color;
+- (void)setColorScheme:(UIColor *)color DEPRECATED_ATTRIBUTE;
 
 @end
 
