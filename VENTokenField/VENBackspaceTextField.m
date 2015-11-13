@@ -28,7 +28,7 @@
     BOOL shouldDelete = (self.text.length == 0);
 
     [super deleteBackward];
-    
+
     if (shouldDelete) {
         if ([self.backspaceDelegate respondsToSelector:@selector(textFieldDidEnterBackspace:)]) {
             [self.backspaceDelegate textFieldDidEnterBackspace:self];
@@ -36,14 +36,8 @@
     }
 }
 
-// This method should only be used for iOS versions 8.0 - 8.2.
 - (BOOL)keyboardInputShouldDelete:(UITextField *)textField {
-    float version = [[[UIDevice currentDevice] systemVersion] floatValue];
-
-    if (version > 7.9 && version < 8.3) {
-        [self deleteBackward];
-    }
-
+    [self deleteBackward];
     return YES;
 }
 
