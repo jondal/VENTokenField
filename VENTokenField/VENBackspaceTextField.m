@@ -24,20 +24,14 @@
 
 @implementation VENBackspaceTextField
 
-- (void)deleteBackward {
-    BOOL shouldDelete = (self.text.length == 0);
-
-    [super deleteBackward];
-
-    if (shouldDelete) {
+- (BOOL)keyboardInputShouldDelete:(UITextField *)textField
+{
+    if (self.text.length == 0) {
         if ([self.backspaceDelegate respondsToSelector:@selector(textFieldDidEnterBackspace:)]) {
             [self.backspaceDelegate textFieldDidEnterBackspace:self];
         }
     }
-}
 
-- (BOOL)keyboardInputShouldDelete:(UITextField *)textField {
-    [self deleteBackward];
     return YES;
 }
 
