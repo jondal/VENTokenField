@@ -358,6 +358,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     self.invisibleTextField = [[VENBackspaceTextField alloc] initWithFrame:CGRectZero];
     [self.invisibleTextField setAutocorrectionType:self.autocorrectionType];
     [self.invisibleTextField setAutocapitalizationType:self.autocapitalizationType];
+    self.invisibleTextField.delegate = self;
     self.invisibleTextField.backspaceDelegate = self;
     [self addSubview:self.invisibleTextField];
 }
@@ -557,6 +558,68 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 
 #pragma mark - UITextFieldDelegate
 
+- (void)textFieldDidBeginEditing:(UITextField *)textField
+{
+    if (textField == self.inputTextField) {
+        [self unhighlightAllTokens];
+    }
+}
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
+{
+    if ([textField isKindOfClass:[VENBackspaceTextField class]] &&
+        [self isBackspacePressInTextField:textField range:range replacementString:string]) {
+        [self textFieldDidEnterBackspace:(VENBackspaceTextField *)textField];
+        return NO;
+    }
+
+    [self unhighlightAllTokens];
+    NSString *newString = [textField.text stringByReplacingCharactersInRange:range withString:string];
+    for (NSString *delimiter in self.delimiters) {
+        if (newString.length > delimiter.length &&
+            [[newString substringFromIndex:newString.length - delimiter.length] isEqualToString:delimiter]) {
+            NSString *enteredString = [newString substringToIndex:newString.length - delimiter.length];
+            if ([self.delegate respondsToSelector:@selector(tokenField:didEnterText:)]) {
+                if (enteredString.length) {
+                    [self.delegate tokenField:self didEnterText:enteredString];
+                    return NO;
+                }
+            }
+        }
+    }
+    return YES;
+}
+
+- (BOOL)isBackspacePressInTextField:(UITextField *)textField range:(NSRange)range replacementString:(NSString *)string {
+    return textField.text.length == 0 &&
+    range.location == 0 &&
+    range.length == 0 &&
+    string.length == 0;
+}
+
+
+#pragma mark - VENBackspaceTextFieldDelegate
+
+- (void)textFieldDidEnterBackspace:(VENBackspaceTextField *)textField
+{
+    if ([self.delegate respondsToSelector:@selector(tokenField:didDeleteTokenAtIndex:)] && [self numberOfTokens]) {
+        BOOL didDeleteToken = NO;
+        for (VENToken *token in self.tokens) {
+            if (token.highlighted) {
+                [self.delegate tokenField:self didDeleteTokenAtIndex:[self.tokens indexOfObject:token]];
+                didDeleteToken = YES;
+                break;
+            }
+        }
+        if (!didDeleteToken) {
+            VENToken *lastToken = [self.tokens lastObject];
+            lastToken.highlighted = YES;
+        }
+        [self setCursorVisibility];
+    }
+}
+
+/*
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
     if ([self.delegate respondsToSelector:@selector(tokenField:didEnterText:)]) {
@@ -622,5 +685,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
         [self setCursorVisibility];
     }
 }
+
+*/
 
 @end
